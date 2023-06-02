@@ -1,0 +1,150 @@
+-------------------* Adding Product* ------------------
+
+
+//Product class//
+package com.example;
+
+public class Product {
+    private String name;
+    private String price;
+    private String description;
+
+    public Product() {
+    }
+
+    public Product(String name, String price, String description) {
+        this.name = name;
+        this.price = price;
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+}
+
+
+
+
+//Class ProductServlet//
+package com.example;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/product")
+public class ProductServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+       
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String name = request.getParameter("name");
+        String price = request.getParameter("price");
+        String description = request.getParameter("description");
+        
+        Product product = new Product(name, price, description);
+        
+        HttpSession session = request.getSession();
+        session.setAttribute("product", product);
+        
+        response.sendRedirect("productDetails.jsp");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+// productDetails.jsp//
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.example.Product" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details</title>
+</head>
+<body>
+    <h2>Product Details</h2>
+    <%
+        Product product = (Product) session.getAttribute("product");
+    %>
+    <p><strong>Name:</strong> <%= product.getName() %></p>
+    <p><strong>Price:</strong> <%= product.getPrice() %></p>
+    <p><strong>Description:</strong> <%= product.getDescription() %></p>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// product form //
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details Form</title>
+</head>
+<body>
+    <h2>Enter Product Details</h2>
+    <form action="product" method="post">
+        <label for="name">Product Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="price">Product Price:</label>
+        <input type="text" id="price" name="price" required><br><br>
+        
+        <label for="description">Product Description:</label>
+        <textarea id="description" name="description" required></textarea><br><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
