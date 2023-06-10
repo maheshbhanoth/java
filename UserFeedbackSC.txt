@@ -1,0 +1,504 @@
+------------------User Feedback-----------------
+
+com.example.controllers
+---------FeedbackController.java-----------
+
+
+package com.example.UserFeedback.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.UserFeedback.entities.Feedback;
+import com.example.UserFeedback.repositories.FeedbackRepository;
+import com.example.UserFeedback.services.FeedbackService;
+
+@RestController
+public class FeedbackController {
+	
+	@Autowired
+	FeedbackService feedbackService;
+	
+	@Autowired
+	FeedbackRepository feedbackRepository;
+	
+	@GetMapping(value="/")
+    public String showIndexPage(ModelMap model){   
+		 return "<html>\n"
+		 		+ "<head>\n"
+		 		+ "	<style>\n"
+		 		+ "		.center {\n"
+		 		+ "	  		text-align: center;\n"
+		 		+ "	  	}\n"
+		 		+ "	  	\n"
+		 		+ "	</style>\n"
+		 		+ "</head>\n"
+		 		+ "<body style=\"background-color:lightblue;\">\n"
+		 		+ "	<div class=\"center\">\n"
+		 		+ "		<h1>User Feedback Page</h1>\n"
+		 		+ "		\n"
+		 		+ "		<h2 class=\"hello-title\">View and Send User Feedback</h2>\n"
+		 		+ "		\n"
+		 		+ "		<a href=\"/feedback\">View all feedback</a>\n"
+		 		+ "		<br><br>\n"
+				+ "     <form method=\"get\" action=\"update\">\n"
+				+ "			<br><h3>Enter your feedback below:</h3>\n"
+				+ "			<input type=\"text\" id=\"comment\" name=\"comment\" placeholder=\"Comment Here\" required>\n"
+				+ "			<input type=\"number\" id=\"rating\" name=\"rating\" placeholder=\"Rating Here\" required>\n"
+				+ "			<input type=\"text\" id=\"name\" name=\"name\" placeholder=\"Name Here\" required>	\n"
+				+ "			<input type=\"submit\" value=\"Enter\" />\n"
+				+ "		</form>"
+		 		+ "	</div>\n"
+		 		+ "</body>\n"
+		 		+ "</html>";
+    }
+	
+	@GetMapping("/feedback")
+	public @ResponseBody String getAllFeedbacks() {
+        // This returns a JSON or XML with the Feedbacks
+        Iterable<Feedback> allFB = feedbackRepository.findAll();
+		return "<html>\n"
+		 		+ "<head>\n"
+		 		+ "	<style>\n"
+		 		+ "		.center {\n"
+		 		+ "	  		text-align: center;\n"
+		 		+ "	  	}\n"
+		 		+ "	  	\n"
+		 		+ "	</style>\n"
+		 		+ "</head>\n"
+		 		+ "<body style=\"background-color:lightblue;\">\n"
+		 		+ "	<div class=\"center\">\n"
+		 		+ "<h1>Feedback Table</h1>\n"
+        		+ allFB.toString()
+		        + "	</div>\n"
+		 		+ "</body>\n"
+		 		+ "</html>";
+    }
+	
+
+}
+
+
+
+
+
+
+--RestUpdateController.java
+
+package com.example.UserFeedback.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.UserFeedback.entities.Feedback;
+import com.example.UserFeedback.repositories.FeedbackRepository;
+import com.example.UserFeedback.services.FeedbackService;
+
+@RestController
+public class RestUpdateController 
+{
+	
+	@Autowired
+	FeedbackService feedbackService;
+	
+	@Autowired
+	FeedbackRepository feedbackRepository;
+	
+    @GetMapping("/update")
+    public String getEmployeeByName(@RequestParam("comment") String comment, @RequestParam("rating") int rating, @RequestParam("name") String name) {
+ 
+    	
+    	Feedback f = new Feedback(count()+1, comment, rating, name);
+    	feedbackRepository.save(f);
+ 
+        return "<html>\n"
+		 		+ "<head>\n"
+		 		+ "	<style>\n"
+		 		+ "		.center {\n"
+		 		+ "	  		text-align: center;\n"
+		 		+ "	  	}\n"
+		 		+ "	  	\n"
+		 		+ "	</style>\n"
+		 		+ "</head>\n"
+		 		+ "<body style=\"background-color:lightblue;\">\n"
+		 		+ "	<div class=\"center\">\n"
+		 		+ "		<h1>User Feedback Page</h1>\n"
+		 		+ "		\n"
+		 		+ "		<h2 class=\"hello-title\">Successfully Added Your Feedback</h2>\n"
+		 		+ "		\n"
+		 		+ "		<a href=\"/feedback\">Click here to view all feedback</a>\n"
+		 		+ "	</div>\n"
+		 		+ "</body>\n"
+		 		+ "</html>";
+    }
+    
+    public Integer count() {
+    	int i = 1;
+    	while(feedbackRepository.existsById(i))
+    		i++;
+    	return i;
+    }
+}
+
+
+
+
+
+
+
+
+
+------------------
+com.example.UserFeedback
+UserFeedbackApplication
+
+
+
+package com.example.UserFeedback;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class UserFeedbackApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(UserFeedbackApplication.class, args);
+	}
+
+}
+
+
+
+
+
+
+
+--------------------
+Feedback.java
+
+package com.example.UserFeedback.entities;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table
+public class Feedback {
+
+	@Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Integer id;
+	private String comments;
+	private int rating;
+	private String user;
+	
+	public Feedback()
+	{
+		
+	}
+	public Feedback(Integer id, String comments, int rating, String user)
+	{
+		this.id = id;
+		this.comments = comments;
+		this.rating = rating;
+		this.user = user;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "<br><h3>" + user + " [" + id + "]" + " commented:</h3><h4>\"" + comments + "\"  and rated: " + rating + "</h4><br>";
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------
+
+com.example.UserFeedback.repositories
+
+FeedbackRepository.java
+
+
+
+package com.example.UserFeedback.repositories;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.example.UserFeedback.entities.*;
+
+public interface FeedbackRepository extends CrudRepository<Feedback, Integer>{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------
+
+com.example.UserFeedback.services
+
+FeedbackService.java
+
+
+
+
+package com.example.UserFeedback.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.UserFeedback.entities.Feedback;
+import com.example.UserFeedback.repositories.*;
+
+@Service
+public class FeedbackService {
+	
+	@Autowired
+	private FeedbackRepository feedbackRepository;
+	
+	public Iterable<Feedback> GetAllFeedback() {
+		return feedbackRepository.findAll();
+	}
+	
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------
+src/main/resources
+
+application.properties
+
+
+
+
+
+
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://${MYSQL_HOST:localhost}:3306/phase2
+spring.datasource.username=root
+spring.datasource.password=Mahesh@143225
+server.port=8090
+
+spring.mvc.view.prefix=/webapp/jsp/
+spring.mvc.view.suffix=.jsp
+server.port=8090
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------
+src/test/java
+
+
+
+package com.example.UserFeedback;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class UserFeedbackApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------
+
+index.jsp
+
+
+
+
+
+
+
+
+<html>
+<head>
+	<style>
+		.center {
+	  		text-align: center;
+	  	}
+	  	
+	</style>
+</head>
+<body style="background-color:lightblue;">
+	<div class="center">
+		<h1>User Manager</h1>
+		
+		<h2 class="hello-title">Search for a User and Update Information</h2>
+		
+		<a href="/feedback">View all feedback</a>
+		<br><br>
+		<form method="post" action="update">
+			Enter an id from the user table: <input type="text" id="id" name="id" placeholder="Type here" required><input type="submit" value="Enter" />
+		</form>
+	</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------
+
+pom.xml
+
+
+
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>UserFeedback</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>UserFeedback</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
